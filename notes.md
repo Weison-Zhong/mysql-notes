@@ -60,4 +60,40 @@
     * 找出名字以A开头除了 like 还有 select ename from emp where substr(ename,1,1) = 'A';
   * length
   * trim
-  * 
+  * round 四舍五入
+  * rand 生成随机数
+    * 100以内随机数 select round(rand()*100,0) from emp;
+  * ifnull 可将null转换为一个具体值,数据库中只要有null参与的数学运算结果都是null
+    * select ename,sal + comm as salcomm from emp;
+    * 计算每个员工年薪 select ename,(sal + ifnull(comm,0))*12 as yearsal from emp;
+  * case...when...
+    * 当job是manger，工资加10%,当job是salseman，工资加50%  select ename,job,(case job when 'MANAGER' then sal * 1.1 when 'SALESMAN' then sal * 1.5 else sal end) as newsal from emp;
+  
+#### 3.5 分组函数(多行处理函数) 必须先分组(默认整张表为一组)后再用
+ * count 计数
+   *  select count(ename) from emp;
+ * sum
+   * 计算工资和 select sum(sal) from emp;
+ * avg
+ * max
+   * 找出最高工资  select max(sal) from emp;
+ * min
+ * 注意事项
+   * 分组函数自动忽略null
+   * count(*)和count(具体字段)区别是 * 统计所有行数，因为不存在所有列都是null，具体字段的话该字段为null不计数
+   * 分组函数不可直接使用在where子句中,如select ename,sal from emp where sal > min(sal);
+
+#### 3.6 分组查询
+ * 计算各岗位工资和(按job分组，然后求和)
+   *  select job,sum(all) from emp group by job;
+ * 找出每个部门的最高薪资
+   * select deptno,max(sal)  from emp group by deptno;
+ * 找出每个部门，不同岗位的最高薪资(两个字段联合分组)
+   *  select deptno,job,max(sal) from emp group by deptno,job;
+ * 找出每个部门最高薪资，要求显示最高薪资大于3000的，使用having对数据惊醒过滤
+   * select deptno,max(sal) from emp group by deptno;
+   * select deptno,max(sal) from emp group by deptno having max(sal) > 3000; 效率相对低
+   * select deptno,max(sal) from emp where sal > 3000 group by deptno; 效率相对高
+  * 找出每个部门平均薪资，要求显示平均薪资大于2500，此时where无法实现，只能用having
+    * select deptno,avg(sal) from emp group by deptno;
+    * select deptno,avg(sal) from emp group by deptno having avg(sal) > 2500;
